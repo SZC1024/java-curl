@@ -30,6 +30,7 @@ public final class CUrl {
 	private static HostnameVerifier insecureVerifier = null;
 	private static SSLSocketFactory insecureFactory = null;
 	private static boolean verbose = false;
+	private static boolean success = true;
 
 	static {
 		try {
@@ -1006,6 +1007,7 @@ public final class CUrl {
 		httpCode = ex instanceof Recoverable ? ((Recoverable) ex).httpCode : -1;
 		rawStdout = ((MemIO) stdout).toByteArray();
 		execTime = System.currentTimeMillis() - startTime;
+        success = false;
 		return silent ? fallback : getStdout(rr, fallback);
 	}
 
@@ -1098,7 +1100,7 @@ public final class CUrl {
 	private static SSLSocketFactory getSocketFactory(IO cert, String password) throws Exception {
 		TrustManager[] t_managers=null;
         KeyManager[]   k_managers=null;
-		Util.logStderr("Load default trust manager");
+//		Util.logStderr("Load default trust manager");
 		t_managers = new TrustManager[] { new X509TrustManager() {
 			public X509Certificate[] getAcceptedIssuers() { return null; }
 			public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
@@ -1808,6 +1810,11 @@ public final class CUrl {
 
 	public static void main(String[] args) {
 		System.out.println(new CUrl().opt(args).exec(null));
+        if (success) {
+            System.exit(0); // 成功
+        } else {
+            System.exit(1); // 失败
+        }
 	}
 
 }
